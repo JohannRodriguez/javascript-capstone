@@ -11,13 +11,13 @@ export default class Enemy2 extends Entity {
   }
 
   rageCheckSwitch (time) {
+    const newDelay = (Phaser.Math.Between(4, 10)) * 1000;
     time.addEvent({
-      delay: 4000,
+      delay: newDelay,
       callback: () => {
         this.setData('rageCheck', true);
-        this.rageControll();
-        const rageSwitch = !this.getData('rage');
-        this.setData('rage', rageSwitch);
+        const rageSwitch = this.getData('rage');
+        this.setData('rage', !rageSwitch);
         console.log(this.getData('rage'));
       },
     });
