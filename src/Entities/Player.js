@@ -2,11 +2,11 @@ import Entity from './Entity';
 
 export default class Player extends Entity {
     constructor (scene, x, y, key) {
-      super(scene, x, y, key, 'Player');
-      this.setData('speed', 200);
+      super(scene, x, y, key, 'ship');
+      this.setData('speed', 300);
+      this.setData('shotSpeed', 450);
       this.setData('shotRate', true);
       this.setData('health', 3);
-      this.play('ship');
     }
 
     shootRate (time) {

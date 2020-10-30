@@ -85,10 +85,7 @@ export default class PreloaderScene extends Phaser.Scene {
     this.load.image('phaserLogo', '/src/assets/logo.png');
     this.load.image('box', '/src/assets/ui/grey_box.png');
     this.load.image('checkedBox', '/src/assets/ui/blue_boxCheckmark.png');
-    this.load.spritesheet('ship', '/src/assets/ui/ship.png', {
-      frameWidth: 16,
-      frameHeight: 32,
-    });
+    this.load.image('ship', '/src/assets/ui/ship.png');
     this.load.image('enemy_1', '/src/assets/ui/enemy_1.png');
     this.load.image('enemy_2', '/src/assets/ui/enemy_2.png');
     this.load.image('enemy_3', '/src/assets/ui/enemy_3.png');
@@ -98,12 +95,12 @@ export default class PreloaderScene extends Phaser.Scene {
   }
 
   create () {
-    this.anims.create({
-      key: 'ship',
-      frames: this.anims.generateFrameNames('ship'),
-      frameRate: 1,
-      repeat: -1,
-    });
+    // this.anims.create({
+    //   key: 'ship',
+    //   frames: this.anims.generateFrameNames('ship'),
+    //   frameRate: 1,
+    //   repeat: -1,
+    // });
   }
 
   ready () {
