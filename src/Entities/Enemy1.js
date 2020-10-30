@@ -9,6 +9,7 @@ export default class Enemy1 extends Entity {
     this.body.setBounce(1);
     this.body.collideWorldBounds = true;
     this.setData('shotRate', true);
+    this.setData('enemyKey', 3);
   }
 
   shotRate (time) {

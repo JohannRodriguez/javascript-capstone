@@ -7,6 +7,24 @@ export default class Player extends Entity {
       this.setData('shotSpeed', 450);
       this.setData('shotRate', true);
       this.setData('health', 3);
+      this.setData('inmune', false);
+      this.setData('score', 0);
+    }
+
+    score (keyPoint) {
+      const currentScore = this.getData('score');
+      const points = (keyPoint * 2)
+
+      this.setData('score', (currentScore + points))
+    }
+
+    inmunityRst (time) {
+      time.addEvent({
+        delay: 1200,
+        callback: () => {
+          this.setData('inmune', false);
+        }
+      });
     }
 
     shootRate (time) {

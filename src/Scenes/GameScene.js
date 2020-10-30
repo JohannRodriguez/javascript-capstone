@@ -76,46 +76,32 @@ export default class GameScene extends Phaser.Scene {
 
   damage (player, bullet) {
     bullet.destroy();
-    const playerHealth = player.getData('health');
-    player.setData('health', (playerHealth - 1));
-    if (player.getData('health') === 0) {
-      player.setData('isDead', true);
+    if (this.player.getData('inmune') === false) {
+      const playerHealth = player.getData('health');
+      player.setData('health', (playerHealth - 1));
+      if (player.getData('health') === 0) {
+        player.setData('isDead', true);
+      }
+      player.setData('inmune', true);
+      player.inmunityRst(this.time);
     }
-    console.log(player.getData('health'));
-    console.log(player.getData('isDead'));
   }
 
   cDamage (player) {
-    const playerHealth = player.getData('health');
-    player.setData('health', (playerHealth - 1));
-    if (player.getData('health') === 0) {
-      player.setData('isDead', true);
+    if (this.player.getData('inmune') === false) {
+      const playerHealth = player.getData('health');
+      player.setData('health', (playerHealth - 1));
+      if (player.getData('health') === 0) {
+        player.setData('isDead', true);
+      }
+      player.setData('inmune', true);
+      player.inmunityRst(this.time);
     }
-    console.log(player.getData('health'));
-    console.log(player.getData('isDead'));
   }
 
-  enemy1Acctions () {
-    this.enemies1.children.iterate(enemy1 => {
-      if (enemy1.getData('shotRate')) {
-        const shotSpeed = enemy1.getData('shotSpeed');
-        enemy1.body.setVelocity(0, 0);
-        enemy1.shotRate(this.time);
-        this.time.addEvent({
-          delay: 500,
-          callback: () => {
-            this.enemyShots.add(new EnemyShot(this, enemy1.x, enemy1.y, 'e_shot', 0, shotSpeed));
-            this.enemyShots.add(new EnemyShot(this, enemy1.x, enemy1.y, 'e_shot', 0, -shotSpeed));
-            this.enemyShots.add(new EnemyShot(this, enemy1.x, enemy1.y, 'e_shot', shotSpeed, 0));
-            this.enemyShots.add(new EnemyShot(this, enemy1.x, enemy1.y, 'e_shot', -shotSpeed, 0));
-          }
-        });
-        enemy1.setData('shotRate', false);
-      }
-    })
-  }
 
   killEnemy (enemy, shot) {
+    this.player.score(enemy.getData('enemyKey'));
     enemy.destroy();
     shot.destroy();
   }
@@ -160,76 +146,98 @@ export default class GameScene extends Phaser.Scene {
 
   update () {
     this.player.update();
-    this.playerAcctions();
-    this.enemy1Acctions();
+    if (this.player.getData('isDead') === false) {
+      this.playerAcctions();
+    }
 
-    this.enemies3.children.iterate(enemy3 => {
-      if (enemy3.getData('shotRate') === true) {
-        enemy3.setData('shotRate', false);
-        enemy3.setData('dir', false);
-        const shotSpeed = enemy3.getData('shotSpeed');
-        enemy3.body.setVelocity(0, 0);
-        enemy3.shotRate(this.time, enemy3.body.x);
-        let direction = shotSpeed;
-        if ((enemy3.body.y - this.player.body.y) > 0) {
-          direction = -shotSpeed;
+    this.enemies1.children.iterate(enemy1 => {
+      if (enemy1) {
+        if (enemy1.getData('shotRate')) {
+          const shotSpeed = enemy1.getData('shotSpeed');
+          enemy1.body.setVelocity(0, 0);
+          enemy1.shotRate(this.time);
+          this.time.addEvent({
+            delay: 500,
+            callback: () => {
+              this.enemyShots.add(new EnemyShot(this, enemy1.x, enemy1.y, 'e_shot', 0, shotSpeed));
+              this.enemyShots.add(new EnemyShot(this, enemy1.x, enemy1.y, 'e_shot', 0, -shotSpeed));
+              this.enemyShots.add(new EnemyShot(this, enemy1.x, enemy1.y, 'e_shot', shotSpeed, 0));
+              this.enemyShots.add(new EnemyShot(this, enemy1.x, enemy1.y, 'e_shot', -shotSpeed, 0));
+            }
+          });
+          enemy1.setData('shotRate', false);
         }
-        this.time.addEvent({
-          delay: 200,
-          callback: () => {
-            this.enemyShots.add(new EnemyShot(this, enemy3.x, enemy3.y, 'e_shot', 0, direction));
-          }
-        });
-        this.time.addEvent({
-          delay: 500,
-          callback: () => {
-            this.enemyShots.add(new EnemyShot(this, enemy3.x, enemy3.y, 'e_shot', 0, direction));
-          }
-        });
-        this.time.addEvent({
-          delay: 800,
-          callback: () => {
-            this.enemyShots.add(new EnemyShot(this, enemy3.x, enemy3.y, 'e_shot', 0, direction));
-          }
-        });
-        this.time.addEvent({
-          delay: 1700,
-          callback: () => {
-            enemy3.setData('dir', true);
-          }
-        });
       }
-      if (enemy3.getData('dir') === true) {
-        enemy3.setData('dir', false);
-        enemy3.changeDir(this.time, enemy3.body.x);
-      }
-    });
-    
+    })
     this.enemies2.children.iterate(enemy2 => {
-      if (enemy2.getData('rageCheck') === true) {
-        enemy2.setData('rageCheck', false);
-        enemy2.rageCheckSwitch(this.time);
-      }
-
-      if (enemy2.getData('rage') === true) {
-        if (enemy2.x - this.player.x < -10) {
-          enemy2.body.velocity.x = enemy2.getData('speed2');
-        } else if (enemy2.x - this.player.x > 10) {
-          enemy2.body.velocity.x = -enemy2.getData('speed2');
-        } else {
-          enemy2.body.velocity.x = 0;
+      if (enemy2) {
+        if (enemy2.getData('rageCheck') === true) {
+          enemy2.setData('rageCheck', false);
+          enemy2.rageCheckSwitch(this.time);
         }
-        if (enemy2.y - this.player.y < -15) {
-          enemy2.body.velocity.y = enemy2.getData('speed2');
-        } else if (enemy2.y - this.player.y > 15) {
-          enemy2.body.velocity.y = -enemy2.getData('speed2');
+  
+        if (enemy2.getData('rage') === true) {
+          if (enemy2.x - this.player.x < -10) {
+            enemy2.body.velocity.x = enemy2.getData('speed2');
+          } else if (enemy2.x - this.player.x > 10) {
+            enemy2.body.velocity.x = -enemy2.getData('speed2');
+          } else {
+            enemy2.body.velocity.x = 0;
+          }
+          if (enemy2.y - this.player.y < -15) {
+            enemy2.body.velocity.y = enemy2.getData('speed2');
+          } else if (enemy2.y - this.player.y > 15) {
+            enemy2.body.velocity.y = -enemy2.getData('speed2');
+          } else {
+            enemy2.body.velocity.y = 0;
+          }
         } else {
-          enemy2.body.velocity.y = 0;
+          enemy2.body.setVelocity(0);
         }
-      } else {
-        enemy2.body.setVelocity(0);
       }
     });
-      
+    this.enemies3.children.iterate(enemy3 => {
+      if (enemy3) {
+        if (enemy3.getData('shotRate') === true) {
+          enemy3.setData('shotRate', false);
+          enemy3.setData('dir', false);
+          const shotSpeed = enemy3.getData('shotSpeed');
+          enemy3.body.setVelocity(0, 0);
+          enemy3.shotRate(this.time, enemy3.body.x);
+          let direction = shotSpeed;
+          if ((enemy3.body.y - this.player.body.y) > 0) {
+            direction = -shotSpeed;
+          }
+          this.time.addEvent({
+            delay: 200,
+            callback: () => {
+              this.enemyShots.add(new EnemyShot(this, enemy3.x, enemy3.y, 'e_shot', 0, direction));
+            }
+          });
+          this.time.addEvent({
+            delay: 500,
+            callback: () => {
+              this.enemyShots.add(new EnemyShot(this, enemy3.x, enemy3.y, 'e_shot', 0, direction));
+            }
+          });
+          this.time.addEvent({
+            delay: 800,
+            callback: () => {
+              this.enemyShots.add(new EnemyShot(this, enemy3.x, enemy3.y, 'e_shot', 0, direction));
+            }
+          });
+          this.time.addEvent({
+            delay: 1700,
+            callback: () => {
+              enemy3.setData('dir', true);
+            }
+          });
+        }
+        if (enemy3.getData('dir') === true) {
+          enemy3.setData('dir', false);
+          enemy3.changeDir(this.time, enemy3.body.x);
+        }
+      }
+    });
   }
 };

@@ -8,6 +8,7 @@ export default class Enemy2 extends Entity {
     this.body.collideWorldBounds = true;
     this.setData('rageCheck', true);
     this.setData('rage', true);
+    this.setData('enemyKey', 1);
   }
 
   rageCheckSwitch (time) {
@@ -18,7 +19,6 @@ export default class Enemy2 extends Entity {
         this.setData('rageCheck', true);
         const rageSwitch = this.getData('rage');
         this.setData('rage', !rageSwitch);
-        console.log(this.getData('rage'));
       },
     });
   }

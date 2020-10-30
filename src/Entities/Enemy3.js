@@ -2,12 +2,13 @@ import Entity from "./Entity";
 
 export default class Enemy3 extends Entity {
   constructor(scene, x, y) {
-    super(scene, x, y, 'enemy_2');
+    super(scene, x, y, 'enemy_3');
     this.setData('speed', 250);
     this.setData('shotSpeed', 300);
     this.body.collideWorldBounds = true;
     this.setData('shotRate', true);
     this.setData('dir', false);
+    this.setData('enemyKey', 2);
   }
 
   newDir (position) {
