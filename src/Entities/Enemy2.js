@@ -4,14 +4,10 @@ export default class Enemy2 extends Entity {
   constructor(scene, x, y) {
     super(scene, x, y, 'enemy_2');
     this.setData('speed1', 150);
-    this.setData('speed2', 220);
+    this.setData('speed2', 260);
     this.body.collideWorldBounds = true;
     this.setData('rageCheck', true);
     this.setData('rage', true);
-  }
-
-  rageControll () {
-    
   }
 
   rageCheckSwitch (time) {
