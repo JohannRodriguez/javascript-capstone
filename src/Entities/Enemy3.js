@@ -8,19 +8,22 @@ export default class Enemy3 extends Entity {
     this.body.collideWorldBounds = true;
     this.setData('shotRate', true);
     this.setData('dir', false);
+    this.setData('ableToMove', true);
     this.setData('enemyKey', 2);
   }
 
   newDir (position) {
-    const ranDir = Phaser.Math.Between(1, 2);
-    if (position < 100) {
-      this.body.velocity.x = this.getData('speed');
-    } else if (position > 700) {
-      this.body.velocity.x = -this.getData('speed');
-    } else if (ranDir === 1) {
-      this.body.velocity.x = this.getData('speed');
-    } else {
-      this.body.velocity.x = -this.getData('speed');
+    if (this.getData('ableToMove') === true) {
+      const ranDir = Phaser.Math.Between(1, 2);
+      if (position < 100) {
+        this.body.velocity.x = this.getData('speed');
+      } else if (position > 700) {
+        this.body.velocity.x = -this.getData('speed');
+      } else if (ranDir === 1) {
+        this.body.velocity.x = this.getData('speed');
+      } else {
+        this.body.velocity.x = -this.getData('speed');
+      }
     }
   }
 
