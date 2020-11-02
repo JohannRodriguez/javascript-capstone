@@ -5,12 +5,12 @@ export default class Enemy1 extends Entity {
     super(scene, x, y, 'enemy_1');
     this.setData('speed', 300);
     this.setData('shotSpeed', 600);
-    this.body.setVelocity(this.getData('speed'));
     this.body.setBounce(1);
     this.body.collideWorldBounds = true;
     this.setData('shotRate', true);
     this.setData('enemyKey', 3);
-    this.setData('ableToMove', true);
+    this.setData('ableToMove', false);
+    this.anims.play('en1Spawn', true);
   }
 
   shotRate (time) {
@@ -20,6 +20,7 @@ export default class Enemy1 extends Entity {
       callback: () => {
         if (this.getData('ableToMove') === true) {
           this.body.setVelocity(this.getData('speed'));
+          this.play('en1Flight');
         }
       },
     });

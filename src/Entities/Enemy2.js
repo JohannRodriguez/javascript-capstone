@@ -12,7 +12,7 @@ export default class Enemy2 extends Entity {
   }
 
   rageCheckSwitch (time) {
-    const newDelay = (Phaser.Math.Between(0.5, 6)) * 1000;
+    const newDelay = (Phaser.Math.Between(2, 6)) * 1000;
     time.addEvent({
       delay: newDelay,
       callback: () => {

@@ -80,27 +80,210 @@ export default class PreloaderScene extends Phaser.Scene {
     this.timedEvent = this.time.delayedCall(3000, this.ready, [], this);
 
     // load assets needed in our game
+    this.load.spritesheet('enemy_1', '/src/assets/ui/enemy_1.png', {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+    this.load.spritesheet('enemy_2', '/src/assets/ui/enemy_2.png', {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+    this.load.spritesheet('enemy_3', '/src/assets/ui/enemy_3.png', {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+    this.load.spritesheet('player', '/src/assets/ui/player.png', {
+      frameWidth: 31,
+      frameHeight: 32,
+    });
+
+    this.load.image('background', '/src/assets/ui/background.png');
+    this.load.image('bar_top', '/src/assets/ui/barrier_top.png');
+    this.load.image('bar_bot', '/src/assets/ui/barrier_bot.png');
+    this.load.image('bar_side', '/src/assets/ui/barrier_side.png');
+    this.load.image('p_shot', '/src/assets/ui/player_bullet.png');
+    this.load.image('en1_shot', '/src/assets/ui/enemy1_bullet.png');
+    this.load.image('en3_shot', '/src/assets/ui/enemy2_bullet.png');
+    this.load.image('shield', '/src/assets/ui/Shield.png');
+
+
     this.load.image('blueButton1', '/src/assets/ui/blue_button02.png');
     this.load.image('blueButton2', '/src/assets/ui/blue_button03.png');
     this.load.image('phaserLogo', '/src/assets/logo.png');
     this.load.image('box', '/src/assets/ui/grey_box.png');
     this.load.image('checkedBox', '/src/assets/ui/blue_boxCheckmark.png');
     this.load.image('ship', '/src/assets/ui/ship.png');
-    this.load.image('enemy_1', '/src/assets/ui/enemy_1.png');
-    this.load.image('enemy_2', '/src/assets/ui/enemy_2.png');
-    this.load.image('enemy_3', '/src/assets/ui/enemy_3.png');
     this.load.image('player_shot', '/src/assets/ui/player_shot.png');
     this.load.image('e_shot', '/src/assets/ui/enemy_shot.png');
     this.load.audio('bgMusic', ['/src/assets/TownTheme.mp3']);
   }
 
   create () {
-    // this.anims.create({
-    //   key: 'ship',
-    //   frames: this.anims.generateFrameNames('ship'),
-    //   frameRate: 1,
-    //   repeat: -1,
-    // });
+    this.anims.create({
+      key: 'playerIdle',
+      frames: this.anims.generateFrameNumbers('player', {
+        start: 0,
+        end: 0,
+      }),
+      frameRate: 0,
+      repeat: 0,
+    });
+    this.anims.create({
+      key: 'playerFront',
+      frames: this.anims.generateFrameNumbers('player', {
+        start: 0,
+        end: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    this.anims.create({
+      key: 'playerLeft',
+      frames: this.anims.generateFrameNumbers('player', {
+        start: 4,
+        end: 7,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    this.anims.create({
+      key: 'playerRight',
+      frames: this.anims.generateFrameNumbers('player', {
+        start: 8,
+        end: 11,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    this.anims.create({
+      key: 'playerBack',
+      frames: this.anims.generateFrameNumbers('player', {
+        start: 12,
+        end: 15,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    this.anims.create({
+      key: 'playerDamage',
+      frames: this.anims.generateFrameNumbers('player', {
+        start: 16,
+        end: 16,
+      }),
+      frameRate: 0,
+      repeat: 0,
+    });
+
+    this.anims.create({
+      key: 'en1Flight',
+      frames: this.anims.generateFrameNumbers('enemy_1', {
+        start: 0,
+        end: 5,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    this.anims.create({
+      key: 'en1Shot',
+      frames: this.anims.generateFrameNumbers('enemy_1', {
+        start: 6,
+        end: 11,
+      }),
+      frameRate: 4.3,
+      repeat: 0,
+    });
+    this.anims.create({
+      key: 'en1Spawn',
+      frames: this.anims.generateFrameNumbers('enemy_1', {
+        start: 12,
+        end: 15,
+      }),
+      frameRate: 4,
+      repeat: 0,
+    });
+
+    this.anims.create( {
+      key: 'en2right',
+      frames: this.anims.generateFrameNumbers('enemy_2', {
+        start: 0,
+        end: 7,
+      }),
+      frameRate: 20,
+      repeat: -1,
+    });
+    this.anims.create( {
+      key: 'en2left',
+      frames: this.anims.generateFrameNumbers('enemy_2', {
+        start: 8,
+        end: 15,
+      }),
+      frameRate: 20,
+      repeat: -1,
+    });
+    this.anims.create( {
+      key: 'en2IdleRight',
+      frames: this.anims.generateFrameNumbers('enemy_2', {
+        start: 16,
+        end: 19,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    this.anims.create( {
+      key: 'en2IdleLeft',
+      frames: this.anims.generateFrameNumbers('enemy_2', {
+        start: 20,
+        end: 23,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+
+    this.anims.create({
+      key: 'en3IdleFront',
+      frames: this.anims.generateFrameNumbers('enemy_3', {
+        start: 0,
+        end: 0,
+      }),
+      frameRate: 0,
+      repeat: 0,
+    });    
+    this.anims.create({
+      key: 'en3IdleBack',
+      frames: this.anims.generateFrameNumbers('enemy_3', {
+        start: 1,
+        end: 1,
+      }),
+      frameRate: 1,
+      repeat: 0,
+    });
+    this.anims.create({
+      key: 'en3ShotFront',
+      frames: this.anims.generateFrameNumbers('enemy_3', {
+        start: 2,
+        end: 4,
+      }),
+      frameRate: 3.1,
+      repeat: 0,
+    });
+    this.anims.create({
+      key: 'en3ShotBack',
+      frames: this.anims.generateFrameNumbers('enemy_3', {
+        start: 5,
+        end: 7,
+      }),
+      frameRate: 3.1,
+      repeat: 0,
+    });
+    this.anims.create({
+      key: 'en3Spawn',
+      frames: this.anims.generateFrameNumbers('enemy_3', {
+        start: 7,
+        end: 10,
+      }),
+      frameRate: 2,
+      repeat: 0,
+    });
   }
 
   ready () {

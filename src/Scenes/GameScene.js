@@ -14,22 +14,34 @@ export default class GameScene extends Phaser.Scene {
   preload () {
   }
 
+  shield (shield, bullet) {
+    shield.destroy();
+    bullet.destroy();
+  }
+
   playerAcctions () {
     if (this.keyW.isDown) {
       this.player.moveUp();
     }
     else if (this.keyS.isDown) {
       this.player.moveDown();
-    }
+    } 
 
     if (this.keyA.isDown) {
       this.player.moveLeft();
     }
     else if (this.keyD.isDown) {
       this.player.moveRight();
+    } 
+
+    if (!this.keyA.isDown && !this.keyD.isDown && !this.keyS.isDown && !this.keyW.isDown && this.player.getData('inmune') === false) {
+      this.player.anims.play('playerIdle', true);
+    } else if (this.player.getData('inmune') === true) {
+      this.player.play('playerDamage');
     }
 
-    if (this.player.getData('shotRate') === true) {
+
+    if (this.player.getData('shotRate') === true && this.player.getData('inmune') === false) {
       if (this.shootKeys.up.isDown) {
         this.playerShots.add(new PlayerShot(
           this,
@@ -91,7 +103,10 @@ export default class GameScene extends Phaser.Scene {
     }
   }
 
-  cDamage (player) {
+  cDamage (player, enemy) {
+    if (enemy.getData('rage')) {
+      enemy.setData('rage', false);
+    }
     if (this.player.getData('inmune') === false) {
       const playerHealth = player.getData('health');
       if (player.getData('isDead') === false) {
@@ -107,23 +122,42 @@ export default class GameScene extends Phaser.Scene {
     }
   }
 
+  b_limit (shot) {
+    shot.destroy();
+  }
+
   killEnemy (enemy, shot) {
-    if (this.player.getData('isDead') === false) {
+    shot.destroy();
+    if (this.player.getData('isDead') === false && enemy.getData('ableToMove') === true) {
       enemy.setData('ableToMove', false);
       this.player.score(enemy.getData('enemyKey'));
       this.scorePoints.setText(`Score: ${this.player.getData('score')}`);
       enemy.destroy();
-      shot.destroy();
     }
   }
 
   create () {
+    this.barriers = this.physics.add.staticGroup();
+    this.shields = this.physics.add.staticGroup();
+
+    this.bg = this.add.image(0, 0, 'background').setOrigin(0, 0);
+    this.barriers.create(400, 50, 'bar_top');
+    this.barriers.create(400, 529, 'bar_bot');
+    this.barriers.create(10, 295, 'bar_side');
+    this.barriers.create(790, 295, 'bar_side');
+
+    this.limits = this.physics.add.staticGroup();
+    this.limits.create(-10, 300, 'bar_side').setScale(1, 1.5);
+    this.limits.create(810, 300, 'bar_side').setScale(1, 1.5);
+    this.limits.create(400, -10, 'bar_top');
+    this.limits.create(400, 610, 'bar_top');
+
     this.player = new Player(
       this,
       this.game.config.width * 0.5,
       this.game.config.height * 0.5,
-      'ship'
-    );
+      'player'
+    ).setScale(1, 1);
     this.playerShots = this.add.group();
 
     this.enemies1 = this.add.group();
@@ -142,46 +176,69 @@ export default class GameScene extends Phaser.Scene {
       fill: "#ff0044",
       align: "center",
     });
-
     
+    // this.time.addEvent({
+    //   delay: 10000,
+    //   callback: () => {
+    //     const enemy1 = new Enemy1(this, Phaser.Math.Between(40, 760), Phaser.Math.Between(40, 560));
+    //     enemy1.setScale(1.5, 1.5);
+    //     this.enemies1.add(enemy1);
+    //     this.time.addEvent({
+    //       delay: 1000,
+    //       callback: () => {
+    //         enemy1.setData('ableToMove', true);
+    //         enemy1.body.setVelocity(enemy1.getData('speed'));
+    //         enemy1.play('en1Flight');
+    //       }
+    //     });
+    //   },
+    //   loop: true,
+    // });
+
+    const enemy2 = new Enemy2(this, Phaser.Math.Between(40, 760), Phaser.Math.Between(40, 560));
+    this.enemies2.add(enemy2);
+
     this.time.addEvent({
       delay: 5000,
       callback: () => {
-        let num = Phaser.Math.Between(1, 2);
-        if (num === 1) {
-          num = 20
-        } else {
-          num = 580;
-        }
-        this.enemies3.add(new Enemy3(this, Phaser.Math.Between(40, 760), num));
+        const enemy2 = new Enemy2(this, Phaser.Math.Between(40, 760), Phaser.Math.Between(40, 560));
+        this.enemies2.add(enemy2);
       },
       loop: true,
     });
+    
 
-    this.time.addEvent({
-      delay: 10000,
-      callback: () => {
-        this.enemies1.add(new Enemy1(this, Phaser.Math.Between(40, 760), Phaser.Math.Between(40, 560)));
-      },
-      loop: true,
-    });
-
-    this.time.addEvent({
-      delay: 10500,
-      callback: () => {
-        this.enemies1.add(new Enemy1(this, Phaser.Math.Between(40, 760), Phaser.Math.Between(40, 560)));
-      },
-      loop: true,
-    });
-
-    this.time.addEvent({
-      delay: 18000,
-      callback: () => {
-        this.enemies2.add(new Enemy2(this, Phaser.Math.Between(40, 760), Phaser.Math.Between(40, 560)));
-        this.enemies2.add(new Enemy2(this, Phaser.Math.Between(40, 760), Phaser.Math.Between(40, 560)));
-      },
-      loop: true,
-    });
+    // this.time.addEvent({
+    //   delay: 5000,
+    //   callback: () => {
+    //     let num = Phaser.Math.Between(1, 2);
+    //     if (num === 1) {
+    //       num = 20
+    //       const enemy3 = new Enemy3(this, Phaser.Math.Between(40, 760), num);
+    //       this.enemies3.add(enemy3);
+    //       this.time.addEvent({
+    //         delay: 1000,
+    //         callback: () => {
+    //           enemy3.setData('ableToMove', true);
+    //           enemy3.play('en3IdleFront');
+    //         }
+    //       });
+    //     } else {
+    //       num = 545;
+    //       const enemy3 = new Enemy3(this, Phaser.Math.Between(40, 760), num);
+    //       this.enemies3.add(enemy3);
+    //       this.time.addEvent({
+    //         delay: 1000,
+    //         callback: () => {
+    //           enemy3.setData('ableToMove', true);
+    //           enemy3.play('en3IdleBack');
+    //         }
+    //       });
+    //     }
+    //   },
+    //   loop: true,
+    // });
+    
 
     this.keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
     this.keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
@@ -191,11 +248,17 @@ export default class GameScene extends Phaser.Scene {
     this.shootKeys = this.input.keyboard.createCursorKeys();
 
     this.physics.add.overlap(this.player, this.enemyShots, this.damage, null, this);
+    this.physics.add.overlap(this.enemyShots, this.limits, this.b_limit, null, this);
+    this.physics.add.overlap(this.playerShots, this.limits, this.b_limit, null, this);
     this.physics.add.overlap(this.player, this.enemies1, this.cDamage, null, this);
     this.physics.add.overlap(this.player, this.enemies2, this.cDamage, null, this);
     this.physics.add.overlap(this.enemies1, this.playerShots, this.killEnemy, null, this);
     this.physics.add.overlap(this.enemies2, this.playerShots, this.killEnemy, null, this);
     this.physics.add.overlap(this.enemies3, this.playerShots, this.killEnemy, null, this);
+    this.physics.add.overlap(this.shields, this.playerShots, this.shield, null, this);
+
+    this.physics.add.collider(this.player, this.barriers);
+    this.physics.add.collider(this.player, this.shields);
   }
 
   update () {
@@ -222,14 +285,15 @@ export default class GameScene extends Phaser.Scene {
         if (enemy1.getData('shotRate')) {
           const shotSpeed = enemy1.getData('shotSpeed');
           enemy1.body.setVelocity(0, 0);
+          enemy1.play('en1Shot');
           enemy1.shotRate(this.time);
           this.time.addEvent({
             delay: 500,
             callback: () => {
-              this.enemyShots.add(new EnemyShot(this, enemy1.x, enemy1.y, 'e_shot', 0, shotSpeed));
-              this.enemyShots.add(new EnemyShot(this, enemy1.x, enemy1.y, 'e_shot', 0, -shotSpeed));
-              this.enemyShots.add(new EnemyShot(this, enemy1.x, enemy1.y, 'e_shot', shotSpeed, 0));
-              this.enemyShots.add(new EnemyShot(this, enemy1.x, enemy1.y, 'e_shot', -shotSpeed, 0));
+              this.enemyShots.add(new EnemyShot(this, enemy1.x, enemy1.y, 'en1_shot', 0, shotSpeed).setScale(2, 2));
+              this.enemyShots.add(new EnemyShot(this, enemy1.x, enemy1.y, 'en1_shot', 0, -shotSpeed).setScale(2, 2));
+              this.enemyShots.add(new EnemyShot(this, enemy1.x, enemy1.y, 'en1_shot', shotSpeed, 0).setScale(2, 2));
+              this.enemyShots.add(new EnemyShot(this, enemy1.x, enemy1.y, 'en1_shot', -shotSpeed, 0).setScale(2, 2));
             }
           });
           enemy1.setData('shotRate', false);
@@ -244,12 +308,16 @@ export default class GameScene extends Phaser.Scene {
         }
   
         if (enemy2.getData('rage') === true) {
+          console.log('pursue');
           if (enemy2.x - this.player.x < -10) {
             enemy2.body.velocity.x = enemy2.getData('speed');
+            enemy2.anims.play('en2right', true);
           } else if (enemy2.x - this.player.x > 10) {
             enemy2.body.velocity.x = -enemy2.getData('speed');
+            enemy2.anims.play('en2left', true);
           } else {
             enemy2.body.velocity.x = 0;
+            enemy2.anims.play('en2right', true);
           }
           if (enemy2.y - this.player.y < -15) {
             enemy2.body.velocity.y = enemy2.getData('speed');
@@ -259,7 +327,15 @@ export default class GameScene extends Phaser.Scene {
             enemy2.body.velocity.y = 0;
           }
         } else {
+          this.shields.create(enemy2.x, enemy2.y, 'shield');
           enemy2.body.setVelocity(0);
+          if (enemy2.x - this.player.x < -5) {
+            enemy2.anims.play('en2IdleRight', true);
+          } else if (enemy2.x - this.player.x > 5) {
+            enemy2.anims.play('en2IdleLeft', true);
+          } else {
+            enemy2.anims.play('en2IdleRight', true)
+          }
         }
       }
     });
@@ -270,7 +346,12 @@ export default class GameScene extends Phaser.Scene {
           enemy3.setData('dir', false);
           const shotSpeed = enemy3.getData('shotSpeed');
           enemy3.body.setVelocity(0, 0);
-          enemy3.shotRate(this.time, enemy3.body.x);
+          enemy3.shotRate(this.time, enemy3.body.x, enemy3.body.y);
+          if (enemy3.body.y < 400) {
+            enemy3.play('en3ShotFront');
+          } else {
+            enemy3.play('en3ShotBack');
+          }
           let direction = shotSpeed;
           if ((enemy3.body.y - this.player.body.y) > 0) {
             direction = -shotSpeed;
@@ -278,19 +359,19 @@ export default class GameScene extends Phaser.Scene {
           this.time.addEvent({
             delay: 200,
             callback: () => {
-              this.enemyShots.add(new EnemyShot(this, enemy3.x, enemy3.y, 'e_shot', 0, direction));
+              this.enemyShots.add(new EnemyShot(this, enemy3.x, enemy3.y, 'en3_shot', 0, direction).setScale(2, 2));
             }
           });
           this.time.addEvent({
             delay: 500,
             callback: () => {
-              this.enemyShots.add(new EnemyShot(this, enemy3.x, enemy3.y, 'e_shot', 0, direction));
+              this.enemyShots.add(new EnemyShot(this, enemy3.x, enemy3.y, 'en3_shot', 0, direction).setScale(2, 2));
             }
           });
           this.time.addEvent({
             delay: 800,
             callback: () => {
-              this.enemyShots.add(new EnemyShot(this, enemy3.x, enemy3.y, 'e_shot', 0, direction));
+              this.enemyShots.add(new EnemyShot(this, enemy3.x, enemy3.y, 'en3_shot', 0, direction).setScale(2, 2));
             }
           });
           this.time.addEvent({
@@ -302,7 +383,7 @@ export default class GameScene extends Phaser.Scene {
         }
         if (enemy3.getData('dir') === true) {
           enemy3.setData('dir', false);
-          enemy3.changeDir(this.time, enemy3.body.x);
+          enemy3.changeDir(this.time, enemy3.body.x, enemy3.body.y);
         }
       }
     });

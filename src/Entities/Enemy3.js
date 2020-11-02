@@ -8,12 +8,18 @@ export default class Enemy3 extends Entity {
     this.body.collideWorldBounds = true;
     this.setData('shotRate', true);
     this.setData('dir', false);
-    this.setData('ableToMove', true);
+    this.setData('ableToMove', false);
     this.setData('enemyKey', 2);
+    this.anims.play('en3Spawn');
   }
 
-  newDir (position) {
+  newDir (position, dir) {
     if (this.getData('ableToMove') === true) {
+      if (this.body.y < 400) {
+        this.play('en3IdleFront');
+      } else {
+        this.play('en3IdleBack');
+      }
       const ranDir = Phaser.Math.Between(1, 2);
       if (position < 100) {
         this.body.velocity.x = this.getData('speed');
@@ -27,9 +33,9 @@ export default class Enemy3 extends Entity {
     }
   }
 
-  changeDir (time, position) {
+  changeDir (time, x, y) {
     const newDelay = (Phaser.Math.Between(1, 3)) * 1000;
-    this.newDir(position);
+    this.newDir(x, y);
     time.addEvent({
       delay: newDelay,
       callback: () => {
@@ -38,12 +44,12 @@ export default class Enemy3 extends Entity {
     });
   }
 
-  shotRate (time, position) {
+  shotRate (time, x, y) {
     const newDelay = (Phaser.Math.Between(3, 8)) * 1000;
     time.addEvent({
       delay: 1500,
       callback: () => {
-        this.newDir(position);
+        this.newDir(x, y);
       },
      });
     time.addEvent({
