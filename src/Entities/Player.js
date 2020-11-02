@@ -1,4 +1,5 @@
 import Entity from './Entity';
+import PlayerShot from '../Entities/PlayerShot';
 
 export default class Player extends Entity {
     constructor (scene, x, y, key) {
@@ -56,7 +57,17 @@ export default class Player extends Entity {
       this.body.velocity.x = this.getData('speed');
       this.anims.play('playerRight', true);
     }
-    
+
+    shotAction(scene, group, dirX, dirY) {
+      group.add(new PlayerShot(
+        scene,
+        this.x,
+        this.y,
+        dirX,
+        dirY,
+      ));
+      this.setData('shotRate', false);
+    }
   
     update () {
       this.body.setVelocity(0, 0);

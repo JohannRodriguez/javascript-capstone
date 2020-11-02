@@ -1,4 +1,5 @@
 import Entity from "./Entity"
+import EnemyShot from '../Entities/EnemyShot';
 
 export default class Enemy1 extends Entity {
   constructor(scene, x, y) {
@@ -11,6 +12,21 @@ export default class Enemy1 extends Entity {
     this.setData('enemyKey', 3);
     this.setData('ableToMove', false);
     this.anims.play('en1Spawn', true);
+  }
+
+  shotAction (shotGroup, time, scene) {
+    const shotSpeed = this.getData('shotSpeed');
+    this.body.setVelocity(0, 0);
+    this.play('en1Shot');
+    time.addEvent({
+      delay: 500,
+      callback: () => {
+        shotGroup.add(new EnemyShot(scene, this.x, this.y, 'en1_shot', 0, shotSpeed).setScale(2, 2));
+        shotGroup.add(new EnemyShot(scene, this.x, this.y, 'en1_shot', 0, -shotSpeed).setScale(2, 2));
+        shotGroup.add(new EnemyShot(scene, this.x, this.y, 'en1_shot', shotSpeed, 0).setScale(2, 2));
+        shotGroup.add(new EnemyShot(scene, this.x, this.y, 'en1_shot', -shotSpeed, 0).setScale(2, 2));
+      }
+    });
   }
 
   shotRate (time) {

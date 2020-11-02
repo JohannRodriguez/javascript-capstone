@@ -1,8 +1,6 @@
 import 'phaser';
 import Player from '../Entities/Player';
-import PlayerShot from '../Entities/PlayerShot';
 import Enemy1 from '../Entities/Enemy1';
-import EnemyShot from '../Entities/EnemyShot';
 import Enemy2 from '../Entities/Enemy2';
 import Enemy3 from '../Entities/Enemy3';
 
@@ -43,44 +41,16 @@ export default class GameScene extends Phaser.Scene {
 
     if (this.player.getData('shotRate') === true && this.player.getData('inmune') === false) {
       if (this.shootKeys.up.isDown) {
-        this.playerShots.add(new PlayerShot(
-          this,
-          this.player.x,
-          this.player.y,
-          0,
-          -this.player.getData('shotSpeed')
-        ));
-        this.player.setData('shotRate', false);
+        this.player.shotAction(this, this.playerShots, 0, -this.player.getData('shotSpeed'));
         this.player.shootRate(this.time);
       } else if (this.shootKeys.down.isDown) {
-        this.playerShots.add(new PlayerShot(
-          this,
-          this.player.x,
-          this.player.y,
-          0,
-          this.player.getData('shotSpeed')
-        ));
-        this.player.setData('shotRate', false);
+        this.player.shotAction(this, this.playerShots, 0, this.player.getData('shotSpeed'));
         this.player.shootRate(this.time);
       } else if (this.shootKeys.right.isDown) {
-        this.playerShots.add(new PlayerShot(
-          this,
-          this.player.x,
-          this.player.y,
-          this.player.getData('shotSpeed'),
-          0
-        ));
-        this.player.setData('shotRate', false);
+        this.player.shotAction(this, this.playerShots, this.player.getData('shotSpeed'), 0);
         this.player.shootRate(this.time);
       } else if (this.shootKeys.left.isDown) {
-        this.playerShots.add(new PlayerShot(
-          this,
-          this.player.x,
-          this.player.y,
-          -this.player.getData('shotSpeed'),
-          0
-        ));
-        this.player.setData('shotRate', false);
+        this.player.shotAction(this, this.playerShots, -this.player.getData('shotSpeed'), 0);
         this.player.shootRate(this.time);
       }
     }
@@ -107,7 +77,7 @@ export default class GameScene extends Phaser.Scene {
     if (enemy.getData('rage')) {
       enemy.setData('rage', false);
     }
-    if (this.player.getData('inmune') === false) {
+    if (this.player.getData('inmune') === false && enemy.getData('ableToMove') === true) {
       const playerHealth = player.getData('health');
       if (player.getData('isDead') === false) {
         player.setData('health', (playerHealth - 1));
@@ -170,74 +140,79 @@ export default class GameScene extends Phaser.Scene {
       fill: "#ff0044",
       align: "center",
     });
-
     this.lifePoints = this.add.text(680, 32, 'Lifes: 3', {
       font: "20px Arial",
       fill: "#ff0044",
       align: "center",
     });
     
-    // this.time.addEvent({
-    //   delay: 10000,
-    //   callback: () => {
-    //     const enemy1 = new Enemy1(this, Phaser.Math.Between(40, 760), Phaser.Math.Between(40, 560));
-    //     enemy1.setScale(1.5, 1.5);
-    //     this.enemies1.add(enemy1);
-    //     this.time.addEvent({
-    //       delay: 1000,
-    //       callback: () => {
-    //         enemy1.setData('ableToMove', true);
-    //         enemy1.body.setVelocity(enemy1.getData('speed'));
-    //         enemy1.play('en1Flight');
-    //       }
-    //     });
-    //   },
-    //   loop: true,
-    // });
-
-    const enemy2 = new Enemy2(this, Phaser.Math.Between(40, 760), Phaser.Math.Between(40, 560));
-    this.enemies2.add(enemy2);
-
     this.time.addEvent({
-      delay: 5000,
+      delay: 9000,
       callback: () => {
-        const enemy2 = new Enemy2(this, Phaser.Math.Between(40, 760), Phaser.Math.Between(40, 560));
-        this.enemies2.add(enemy2);
+        const enemy1 = new Enemy1(this, Phaser.Math.Between(40, 760), Phaser.Math.Between(40, 560));
+        enemy1.setScale(1.2, 1.2);
+        this.enemies1.add(enemy1);
+        this.time.addEvent({
+          delay: 1000,
+          callback: () => {
+            enemy1.setData('ableToMove', true);
+            enemy1.body.setVelocity(enemy1.getData('speed'));
+            enemy1.play('en1Flight');
+          }
+        });
       },
       loop: true,
     });
-    
-
-    // this.time.addEvent({
-    //   delay: 5000,
-    //   callback: () => {
-    //     let num = Phaser.Math.Between(1, 2);
-    //     if (num === 1) {
-    //       num = 20
-    //       const enemy3 = new Enemy3(this, Phaser.Math.Between(40, 760), num);
-    //       this.enemies3.add(enemy3);
-    //       this.time.addEvent({
-    //         delay: 1000,
-    //         callback: () => {
-    //           enemy3.setData('ableToMove', true);
-    //           enemy3.play('en3IdleFront');
-    //         }
-    //       });
-    //     } else {
-    //       num = 545;
-    //       const enemy3 = new Enemy3(this, Phaser.Math.Between(40, 760), num);
-    //       this.enemies3.add(enemy3);
-    //       this.time.addEvent({
-    //         delay: 1000,
-    //         callback: () => {
-    //           enemy3.setData('ableToMove', true);
-    //           enemy3.play('en3IdleBack');
-    //         }
-    //       });
-    //     }
-    //   },
-    //   loop: true,
-    // });
+    this.time.addEvent({
+      delay: 5000,
+      callback: () => {
+        const posX = Phaser.Math.Between(60, 740);
+        const posY = Phaser.Math.Between(90, 540)
+        const enemy2 = new Enemy2(this, posX, posY)
+        this.enemies2.add(enemy2);
+        this.shields.create(posX, posY, 'shield');
+        this.shields.create(posX, posY - 2, 'shield');
+        this.time.addEvent({
+          delay: 500,
+          callback: () => {
+            enemy2.setData('ableToMove', true);
+          }
+        });
+      },
+      loop: true,
+    });
+    this.time.addEvent({
+      delay: 7000,
+      callback: () => {
+        let num = Phaser.Math.Between(1, 2);
+        if (num === 1) {
+          num = 20
+          const enemy3 = new Enemy3(this, Phaser.Math.Between(40, 760), num);
+          this.enemies3.add(enemy3);
+          this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+              enemy3.setData('ableToMove', true);
+              enemy3.play('en3IdleFront');
+            }
+          });
+        } else {
+          num = 545;
+          const enemy3 = new Enemy3(this, Phaser.Math.Between(40, 760), num);
+          enemy3.setData('shotSpeed', -300);
+          enemy3.setData('anim', 'en3ShotBack');
+          this.enemies3.add(enemy3);
+          this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+              enemy3.setData('ableToMove', true);
+              enemy3.play('en3IdleBack');
+            }
+          });
+        }
+      },
+      loop: true,
+    });
     
 
     this.keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
@@ -283,19 +258,8 @@ export default class GameScene extends Phaser.Scene {
     this.enemies1.children.iterate(enemy1 => {
       if (enemy1.getData('ableToMove') === true) {
         if (enemy1.getData('shotRate')) {
-          const shotSpeed = enemy1.getData('shotSpeed');
-          enemy1.body.setVelocity(0, 0);
-          enemy1.play('en1Shot');
+          enemy1.shotAction(this.enemyShots, this.time, this);
           enemy1.shotRate(this.time);
-          this.time.addEvent({
-            delay: 500,
-            callback: () => {
-              this.enemyShots.add(new EnemyShot(this, enemy1.x, enemy1.y, 'en1_shot', 0, shotSpeed).setScale(2, 2));
-              this.enemyShots.add(new EnemyShot(this, enemy1.x, enemy1.y, 'en1_shot', 0, -shotSpeed).setScale(2, 2));
-              this.enemyShots.add(new EnemyShot(this, enemy1.x, enemy1.y, 'en1_shot', shotSpeed, 0).setScale(2, 2));
-              this.enemyShots.add(new EnemyShot(this, enemy1.x, enemy1.y, 'en1_shot', -shotSpeed, 0).setScale(2, 2));
-            }
-          });
           enemy1.setData('shotRate', false);
         }
       }
@@ -308,78 +272,20 @@ export default class GameScene extends Phaser.Scene {
         }
   
         if (enemy2.getData('rage') === true) {
-          console.log('pursue');
-          if (enemy2.x - this.player.x < -10) {
-            enemy2.body.velocity.x = enemy2.getData('speed');
-            enemy2.anims.play('en2right', true);
-          } else if (enemy2.x - this.player.x > 10) {
-            enemy2.body.velocity.x = -enemy2.getData('speed');
-            enemy2.anims.play('en2left', true);
-          } else {
-            enemy2.body.velocity.x = 0;
-            enemy2.anims.play('en2right', true);
-          }
-          if (enemy2.y - this.player.y < -15) {
-            enemy2.body.velocity.y = enemy2.getData('speed');
-          } else if (enemy2.y - this.player.y > 15) {
-            enemy2.body.velocity.y = -enemy2.getData('speed');
-          } else {
-            enemy2.body.velocity.y = 0;
-          }
+          enemy2.body.setVelocityX(enemy2.directionX(this.player));
+          enemy2.body.setVelocityY(enemy2.directionY(this.player));
         } else {
           this.shields.create(enemy2.x, enemy2.y, 'shield');
-          enemy2.body.setVelocity(0);
-          if (enemy2.x - this.player.x < -5) {
-            enemy2.anims.play('en2IdleRight', true);
-          } else if (enemy2.x - this.player.x > 5) {
-            enemy2.anims.play('en2IdleLeft', true);
-          } else {
-            enemy2.anims.play('en2IdleRight', true)
-          }
+          enemy2.idleDir(this.player);
         }
       }
     });
     this.enemies3.children.iterate(enemy3 => {
       if (enemy3.getData('ableToMove') === true) {
         if (enemy3.getData('shotRate') === true) {
-          enemy3.setData('shotRate', false);
-          enemy3.setData('dir', false);
-          const shotSpeed = enemy3.getData('shotSpeed');
-          enemy3.body.setVelocity(0, 0);
           enemy3.shotRate(this.time, enemy3.body.x, enemy3.body.y);
-          if (enemy3.body.y < 400) {
-            enemy3.play('en3ShotFront');
-          } else {
-            enemy3.play('en3ShotBack');
-          }
-          let direction = shotSpeed;
-          if ((enemy3.body.y - this.player.body.y) > 0) {
-            direction = -shotSpeed;
-          }
-          this.time.addEvent({
-            delay: 200,
-            callback: () => {
-              this.enemyShots.add(new EnemyShot(this, enemy3.x, enemy3.y, 'en3_shot', 0, direction).setScale(2, 2));
-            }
-          });
-          this.time.addEvent({
-            delay: 500,
-            callback: () => {
-              this.enemyShots.add(new EnemyShot(this, enemy3.x, enemy3.y, 'en3_shot', 0, direction).setScale(2, 2));
-            }
-          });
-          this.time.addEvent({
-            delay: 800,
-            callback: () => {
-              this.enemyShots.add(new EnemyShot(this, enemy3.x, enemy3.y, 'en3_shot', 0, direction).setScale(2, 2));
-            }
-          });
-          this.time.addEvent({
-            delay: 1700,
-            callback: () => {
-              enemy3.setData('dir', true);
-            }
-          });
+          enemy3.shotAction();
+          enemy3.newBullet(this.time, this.enemyShots, this);
         }
         if (enemy3.getData('dir') === true) {
           enemy3.setData('dir', false);

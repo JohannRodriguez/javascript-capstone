@@ -1,4 +1,5 @@
 import Entity from "./Entity";
+import EnemyShot from '../Entities/EnemyShot';
 
 export default class Enemy3 extends Entity {
   constructor(scene, x, y) {
@@ -10,7 +11,34 @@ export default class Enemy3 extends Entity {
     this.setData('dir', false);
     this.setData('ableToMove', false);
     this.setData('enemyKey', 2);
+    this.setData('anim', 'en3ShotFront');
     this.anims.play('en3Spawn');
+  }
+
+  shotAction () {
+    this.setData('shotRate', false);
+    this.setData('dir', false);
+    this.body.setVelocity(0, 0);
+    this.anims.play(this.getData('anim'), true);
+  }
+
+  newBullet (time, shotGroup, scene) {
+    const array = [200, 500, 800]
+    for (let index = 0; index < array.length; index++) {
+      time.addEvent({
+        delay: array[index],
+        callback: () => {
+          const newShot = new EnemyShot(scene, this.x, this.y, 'en3_shot', 0, this.getData('shotSpeed'));
+          shotGroup.add(newShot.setScale(2, 2));
+        }
+      });
+    }
+    time.addEvent({
+      delay: 1800,
+      callback: () => {
+        this.setData('dir', true);
+      }
+    });
   }
 
   newDir (position, dir) {

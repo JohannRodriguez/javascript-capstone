@@ -104,6 +104,8 @@ export default class PreloaderScene extends Phaser.Scene {
     this.load.image('en1_shot', '/src/assets/ui/enemy1_bullet.png');
     this.load.image('en3_shot', '/src/assets/ui/enemy2_bullet.png');
     this.load.image('shield', '/src/assets/ui/Shield.png');
+    this.load.image('upBtn', '/src/assets/ui/up_btn.png');
+    this.load.image('downBtn', '/src/assets/ui/down_btn.png');
 
 
     this.load.image('blueButton1', '/src/assets/ui/blue_button02.png');
@@ -197,7 +199,7 @@ export default class PreloaderScene extends Phaser.Scene {
         start: 12,
         end: 15,
       }),
-      frameRate: 4,
+      frameRate: 4.5,
       repeat: 0,
     });
 
