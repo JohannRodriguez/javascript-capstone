@@ -1,6 +1,7 @@
 import 'phaser';
 import config from '../Config/config';
 import Button from '../Objects/Button';
+import ScoreBoard from '../ScoreBoard';
 
 export default class DeadScene extends Phaser.Scene {
   constructor () {
@@ -11,17 +12,38 @@ export default class DeadScene extends Phaser.Scene {
     this.score = data;
   }
 
-  listener () {
-    console.log('click');
+  async createScore (scoreBoard, name, score) {
+    await scoreBoard.submitScore(name, score);
+    this.scene.start('Scores');
   }
 
-  create () {
+  badName () {
+    this.correct = this.add.text(310, 440, 'This name is taken', {
+      font: "20px Arial",
+      fill: "#ff0044",
+      align: "center",
+    });
+    this.time.addEvent({
+      delay: 3000,
+      callback: () => {
+        this.correct.destroy();
+      }
+    });
+  }
+
+  async create () {
+    this.scoreBoard = new ScoreBoard();
+    this.scores = await this.scoreBoard.getScores();
     this.gameButton = new Button(this, config.width/2, 130, 'blueButton1', 'blueButton2', 'Title menu', 'Title');
     this.finalScore = this.add.text(30, 32, `Your final score is ${this.score}`, {
       font: "20px Arial",
       fill: "#ff0044",
       align: "center",
     });
+
+    
+    this.scoresArr = Object.values(this.scores.result);
+    
 
     this.letter1 = this.add.text(280, 260, 'A', {
       font: "60px Arial",
@@ -99,6 +121,21 @@ export default class DeadScene extends Phaser.Scene {
         this.counter3--
       }
       this.letter3.setText(this.alphabet[this.counter3]);
+    });
+    this.submit = this.add.image(400, 530, 'blueButton1').setInteractive();
+    this.submitPermit = true;
+    this.submit.on('pointerdown', () => {
+      const name = `${this.alphabet[this.counter1]}${this.alphabet[this.counter2]}${this.alphabet[this.counter3]}`;
+      for (let i = 0; i < this.scoresArr.length; i++) {
+        if (name === this.scoresArr[i].user) {
+          this.badName();
+          this.submitPermit = false;
+          i = this.scoresArr.lenght + 1;
+        }
+      }
+      if (this.submitPermit === true) {
+        this.createScore(this.scoreBoard, name, parseInt(this.score))
+      }
     });
   }
 };
